@@ -28,11 +28,47 @@ IntegrateActionBar()
 local frame1 = FW:GetFrame("Cooldown")
 frame1.Update_ = frame1.Update
 frame1.Update = function(self)
-	self:Update_(self)
-	--TukuiDB:SetTemplate(self)
-	self:EnableMouse(false)
+	self.s = FW.Settings[self.name] or FW.Settings;
+	-- lock it
+	self.s.lock = true
+	if FW.Settings.GlobalFrameNames then
+		_G["FX_"..self.name] = self;
+	end
+	if self.s.Enable then
+		self:EnableMouse(not self.s.lock);
+		self:SetAlpha(self.s.alpha);
+		self:SetScale(self.s.scale);
+
+		self.back:SetTexture(self.s.Texture);
+		self.back:SetVertexColor(unpack(self.s.BarColor));
+		FW:SetBackdrop(self,unpack(self.s.Backdrop));
+		self:SetBackdropColor(unpack(self.s.BgColor));
+		self:SetBackdropBorderColor(unpack(self.s.BgColor));
+			
+		--[[if self.s.Vertical then
+			self:SetWidth(self.s.Height+self.s.Backdrop[6]*2);
+			self:SetHeight(self.s.Width+self.s.Backdrop[6]*2);
+			self.back:SetTexCoord(1,0, 0,0, 1,1, 0,1);
+		else]]
+			--self:SetWidth(self.s.Width+self.s.Backdrop[6]*2);
+			self:SetWidth(TukuiDB:Scale(ActionBarBackground:GetWidth() - 2))
+			self:SetHeight(self.s.Height+self.s.Backdrop[6]*2);
+			self.s.Width = self:GetWidth()
+			self.s.x = 615
+			self.s.y = 37
+			self.back:SetTexCoord(0,0, 0,1, 1,0, 1,1);
+		--end	
+		for b, bar in ipairs(self.bars) do
+			bar:Update();
+		end
+		self:SetTimeTags();
+		--FW:CorrectPosition(self);
+		self:SetFrameStrata(FW.Settings.CooldownStrata);
+		self:Show();
+	else
+		self:Hide();
+	end
 	self:SetPoint("TOPLEFT", ActionBarBackground, "TOPLEFT", TukuiDB:Scale(1), TukuiDB:Scale(-2))
-	self:SetWidth(TukuiDB:Scale(ActionBarBackground:GetWidth() - 2))
 end
 
 local frame2 = FW:GetFrame("Timer")
